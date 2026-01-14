@@ -133,20 +133,95 @@ Environment variables in `docker-compose.yml` or `.env` file:
 
 ```
 /opt/hytale-data/
-├── .tokens/           # OAuth tokens (chmod 700)
+├── .tokens/                              # OAuth tokens
 │   ├── refresh_token
 │   └── profile_uuid
-├── current/           # Server files
+├── .hytale-downloader-credentials.json   # Downloader credentials
+├── current/                              # Server files (auto-downloaded)
 │   ├── Server/
 │   │   ├── HytaleServer.jar
-│   │   └── HytaleServer.aot  # AOT cache for fast startup
+│   │   └── HytaleServer.aot
 │   └── Assets.zip
-└── runtime/           # Runtime data
-    ├── universe/      # World saves
-    ├── logs/
-    ├── mods/
-    └── backups/
+├── universe/                             # World saves
+├── mods/                                 # Server mods
+├── logs/                                 # Server logs
+├── runtime/                              # Runtime data & backups
+├── config.json                           # Server configuration
+├── permissions.json                      # Player permissions
+├── bans.json                             # Banned players
+└── whitelist.json                        # Whitelisted players
 ```
+
+## Migration / Миграция
+
+To migrate server to another machine:
+
+Для переноса сервера на другую машину:
+
+### On old server / На старом сервере
+
+```bash
+# Stop server
+docker compose down
+
+# Create backup
+cd /opt/hytale-data
+tar -czf /tmp/hytale-backup.tar.gz \
+    .tokens \
+    .hytale-downloader-credentials.json \
+    universe \
+    config.json \
+    permissions.json \
+    bans.json \
+    whitelist.json \
+    mods
+
+# Copy to new server
+scp /tmp/hytale-backup.tar.gz user@new-server:/tmp/
+```
+
+### On new server / На новом сервере
+
+```bash
+# Create data directory
+sudo mkdir -p /opt/hytale-data
+sudo chown $USER:$USER /opt/hytale-data
+
+# Extract backup FIRST (before docker)
+tar -xzf /tmp/hytale-backup.tar.gz -C /opt/hytale-data
+
+# Clone repo
+git clone https://github.com/PavelLizunov/hytale-server-docker.git
+cd hytale-server-docker
+
+# Build
+docker compose build
+
+# Download server files (tokens already in place)
+docker compose run --rm updater
+
+# Start (auth-init NOT needed - tokens exist)
+docker compose up -d
+
+# Verify
+docker compose logs -f hytale
+```
+
+### What to transfer / Что переносить
+
+| Path | Transfer | Description |
+|------|----------|-------------|
+| `.tokens/` | Yes | OAuth tokens |
+| `.hytale-downloader-credentials.json` | Yes | Downloader auth |
+| `universe/` | Yes | World saves |
+| `config.json` | Yes | Server config |
+| `permissions.json` | Yes | Permissions |
+| `bans.json` | Yes | Bans |
+| `whitelist.json` | Yes | Whitelist |
+| `mods/` | Yes | Mods |
+| `current/` | No | Re-downloaded |
+| `logs/` | No | Not needed |
+| `runtime/` | Optional | Backups only |
 
 ## Network / Сеть
 
