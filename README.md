@@ -10,7 +10,9 @@ Docker-конфигурация для запуска выделенного с�
 
 - Docker & Docker Compose
 - Linux x64 or arm64
-- 4GB+ RAM
+- 4GB+ RAM (8GB+ recommended)
+- 15GB+ free disk space
+- Swap recommended (4GB+)
 - Hytale account with game license
 
 ## Quick Start / Быстрый старт
@@ -41,6 +43,10 @@ docker compose build
 
 ### 4. Download server files / Скачать файлы сервера
 
+Downloads ~4GB, requires ~10GB free space during extraction.
+
+Скачивает ~4GB, требует ~10GB свободного места при распаковке.
+
 ```bash
 docker compose run --rm updater
 ```
@@ -65,7 +71,10 @@ Follow the instructions:
 
 ```bash
 docker compose up -d
+docker compose logs -f hytale
 ```
+
+You should see: `Hytale Server Booted! [Multiplayer]`
 
 ### 7. Setup token refresh (cron) / Настройка обновления токена
 
@@ -74,7 +83,6 @@ The refresh token expires in 30 days. Add a cron job to renew it:
 Refresh token истекает через 30 дней. Добавьте cron для обновления:
 
 ```bash
-# Edit crontab
 crontab -e
 
 # Add this line (runs every 25 days at 3 AM)
@@ -101,6 +109,9 @@ docker attach hytale
 docker compose down
 docker compose run --rm updater
 docker compose up -d
+
+# Rebuild after git pull / Пересборка после обновления
+docker compose build --no-cache
 ```
 
 ## Configuration / Конфигурация
@@ -127,7 +138,8 @@ Environment variables in `docker-compose.yml` or `.env` file:
 │   └── profile_uuid
 ├── current/           # Server files
 │   ├── Server/
-│   │   └── HytaleServer.jar
+│   │   ├── HytaleServer.jar
+│   │   └── HytaleServer.aot  # AOT cache for fast startup
 │   └── Assets.zip
 └── runtime/           # Runtime data
     ├── universe/      # World saves
@@ -156,6 +168,18 @@ sudo iptables -A INPUT -p udp --dport 5520 -j ACCEPT
 
 ## Troubleshooting / Устранение неполадок
 
+### Scripts not found after update / Скрипты не найдены после обновления
+
+Docker caches old layers. Rebuild with `--no-cache`:
+
+Docker кэширует старые слои. Пересоберите с `--no-cache`:
+
+```bash
+docker rmi hytale-server-docker-hytale:latest --force
+docker rmi hytale-server-docker-updater:latest --force 2>/dev/null || true
+docker compose build --no-cache
+```
+
 ### Server won't start / Сервер не запускается
 
 ```bash
@@ -169,8 +193,21 @@ ls -la /opt/hytale-data/current/
 ### Auth token expired / Токен истёк
 
 ```bash
-# Re-run auth
 docker compose run --rm auth-init
+```
+
+### VM crashes during extraction / VM падает при распаковке
+
+Add swap if not present:
+
+Добавьте swap если его нет:
+
+```bash
+sudo fallocate -l 4G /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
 ```
 
 ### Players can't connect / Игроки не могут подключиться
