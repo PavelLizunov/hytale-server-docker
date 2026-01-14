@@ -13,11 +13,11 @@ RUN set -ex; \
     curl -fsSL "$DOWNLOAD_URL" -o /tmp/dl/hytale-downloader.zip; \
     unzip -q /tmp/dl/hytale-downloader.zip -d /tmp/dl; \
     case "${TARGETARCH}" in \
-        amd64) BINARY="hytale-downloader-linux" ;; \
+        amd64) BINARY="hytale-downloader-linux-amd64" ;; \
         arm64) BINARY="hytale-downloader-linux-arm64" ;; \
-        *) BINARY="hytale-downloader-linux" ;; \
+        *) BINARY="hytale-downloader-linux-amd64" ;; \
     esac; \
-    find /tmp/dl -name "$BINARY" -exec cp {} /usr/local/bin/hytale-downloader \;; \
+    cp "/tmp/dl/${BINARY}" /usr/local/bin/hytale-downloader; \
     chmod +x /usr/local/bin/hytale-downloader; \
     rm -rf /tmp/dl; \
     /usr/local/bin/hytale-downloader -version || true

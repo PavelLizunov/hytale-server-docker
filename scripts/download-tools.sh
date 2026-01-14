@@ -20,15 +20,16 @@ detect_platform() {
     case "$os" in
         linux)
             case "$arch" in
-                x86_64|amd64) echo "hytale-downloader-linux" ;;
+                x86_64|amd64) echo "hytale-downloader-linux-amd64" ;;
                 aarch64|arm64) echo "hytale-downloader-linux-arm64" ;;
-                *) echo "hytale-downloader-linux" ;;
+                *) echo "hytale-downloader-linux-amd64" ;;
             esac
             ;;
         darwin)
+            # macOS not available in official release, use linux binary with Rosetta or native
             case "$arch" in
-                arm64) echo "hytale-downloader-macos-arm64" ;;
-                *) echo "hytale-downloader-macos" ;;
+                arm64) echo "hytale-downloader-linux-arm64" ;;
+                *) echo "hytale-downloader-linux-amd64" ;;
             esac
             ;;
         *)
