@@ -1,0 +1,58 @@
+services:
+  hytale:
+    build: .
+    container_name: hytale
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    volumes:
+      - /opt/hytale-data:/data
+    ports:
+      - "5520:5520/udp"
+    environment:
+      JAVA_OPTS: "-Xms2G -Xmx6G -XX:AOTCache=HytaleServer.aot"
+      HYTALE_BIND: "0.0.0.0:5520"
+    command: >
+      bash -lc '
+        set -euo pipefail
+        test -f /data/current/Server/HytaleServer.jar
+        test -f /data/current/Assets.zip
+        mkdir -p /data/runtime
+        cd /data/runtime
+        exec java ${JAVA_OPTS} -jar /data/current/Server/HytaleServer.jar
+          --assets /data/current/Assets.zip
+          --bind ${HYTALE_BIND}
+          --backup --backup-dir /data/runtime/backups --backup-frequency 30
+      '
+
+  updater:
+    build: .
+    container_name: hytale-updater
+    profiles: ["manual"]
+    volumes:
+      - /opt/hytale-data:/data
+    environment:
+      PATCHLINE: "release"
+    command: >
+      bash -lc '
+        set -euo pipefail
+        PATCHLINE="${PATCHLINE:-release}"
+        mkdir -p /data/tmp /data/current
+        ZIP=/data/tmp/game.zip
+        EXTRACT=/data/tmp/extract
+        rm -rf "$EXTRACT" "$ZIP"
+        mkdir -p "$EXTRACT"
+        echo "[updater] downloading ($PATCHLINE) ..."
+        /usr/local/bin/hytale-downloader -patchline "$PATCHLINE" -download-path "$ZIP"
+        echo "[updater] extracting ..."
+        unzip -o "$ZIP" -d "$EXTRACT"
+        ASSETS="$(find "$EXTRACT" -type f -name "Assets.zip" | head -n1 || true)"
+        SERVER_DIR="$(find "$EXTRACT" -type d -name "Server" | head -n1 || true)"
+        test -n "$ASSETS"
+        test -n "$SERVER_DIR"
+        rm -rf /data/current/Server
+        mkdir -p /data/current
+        cp -a "$SERVER_DIR" /data/current/Server
+        cp -f "$ASSETS" /data/current/Assets.zip
+        echo "[updater] done."
+      '
