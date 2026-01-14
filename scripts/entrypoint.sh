@@ -23,7 +23,7 @@ BACKUP_ENABLED="${BACKUP_ENABLED:-true}"
 BACKUP_DIR="${BACKUP_DIR:-${RUNTIME_DIR}/backups}"
 BACKUP_FREQUENCY="${BACKUP_FREQUENCY:-30}"
 
-log() { echo "[entrypoint] $1"; }
+log() { echo "[entrypoint] $1" >&2; }
 
 # Check required files
 check_files() {
@@ -51,6 +51,9 @@ get_auth_tokens() {
     fi
 
     log "Getting session tokens..."
+
+    # Export TOKENS_DIR for auth-session.sh
+    export TOKENS_DIR
 
     # Run auth-session.sh and capture output
     if AUTH_OUTPUT=$("${SCRIPTS_DIR}/auth-session.sh" "env" 2>&1); then
