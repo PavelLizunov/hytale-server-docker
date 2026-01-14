@@ -7,6 +7,7 @@ data/
 .DS_Store
 .idea/
 .vscode/
+discord-announcement.txt
 
 # ai-tools
 ai-tools/doc-fetcher/node_modules/
