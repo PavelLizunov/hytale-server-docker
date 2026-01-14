@@ -11,7 +11,7 @@ Docker-конфигурация для запуска выделенного с�
 - Docker & Docker Compose
 - Linux x64 or arm64
 - 4GB+ RAM
-- `hytale-downloader` binary (from [Hytale Support](https://support.hytale.com))
+- Hytale account with game license
 
 ## Quick Start / Быстрый старт
 
@@ -22,39 +22,30 @@ git clone https://github.com/PavelLizunov/hytale-server-docker.git
 cd hytale-server-docker
 ```
 
-### 2. Download hytale-downloader / Скачать hytale-downloader
-
-Download from Hytale documentation and extract to `bin/`:
-
-Скачайте из документации Hytale и распакуйте в `bin/`:
-
-```bash
-# Download hytale-downloader.zip from Hytale Support
-unzip hytale-downloader.zip
-mv hytale-downloader-linux bin/hytale-downloader  # or hytale-downloader-windows.exe
-chmod +x bin/hytale-downloader
-```
-
-### 3. Create data directory / Создать папку данных
+### 2. Create data directory / Создать папку данных
 
 ```bash
 sudo mkdir -p /opt/hytale-data
 sudo chown $USER:$USER /opt/hytale-data
 ```
 
-### 4. Build / Сборка
+### 3. Build / Сборка
+
+`hytale-downloader` is downloaded automatically during build.
+
+`hytale-downloader` скачивается автоматически при сборке.
 
 ```bash
 docker compose build
 ```
 
-### 5. Download server files / Скачать файлы сервера
+### 4. Download server files / Скачать файлы сервера
 
 ```bash
 docker compose run --rm updater
 ```
 
-### 6. Authentication (ONE TIME) / Авторизация (ОДИН РАЗ)
+### 5. Authentication (ONE TIME) / Авторизация (ОДИН РАЗ)
 
 ```bash
 docker compose run --rm auth-init
@@ -70,13 +61,13 @@ Follow the instructions:
 2. Введите код
 3. Авторизуйтесь через аккаунт Hytale
 
-### 7. Start server / Запуск сервера
+### 6. Start server / Запуск сервера
 
 ```bash
 docker compose up -d
 ```
 
-### 8. Setup token refresh (cron) / Настройка обновления токена
+### 7. Setup token refresh (cron) / Настройка обновления токена
 
 The refresh token expires in 30 days. Add a cron job to renew it:
 
@@ -87,7 +78,7 @@ Refresh token истекает через 30 дней. Добавьте cron д�
 crontab -e
 
 # Add this line (runs every 25 days at 3 AM)
-0 3 */25 * * /opt/hytale-server-docker/scripts/auth-refresh.sh >> /var/log/hytale-auth.log 2>&1
+0 3 */25 * * docker exec hytale /scripts/auth-refresh.sh >> /var/log/hytale-auth.log 2>&1
 ```
 
 ## Commands / Команды

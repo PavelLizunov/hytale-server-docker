@@ -3,10 +3,6 @@ data/
 *.enc
 *.zip
 
-# binaries (download separately)
-bin/*
-!bin/.gitkeep
-
 # local dev noise
 .DS_Store
 .idea/
