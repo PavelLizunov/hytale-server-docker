@@ -1,10 +1,13 @@
 # never commit data / credentials / runtime
 data/
 *.enc
-*.json
 *.zip
 
 # local dev noise
 .DS_Store
 .idea/
 .vscode/
+
+# ai-tools
+ai-tools/doc-fetcher/node_modules/
+ai-tools/doc-fetcher/docs/

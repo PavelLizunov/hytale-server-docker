@@ -1,0 +1,13 @@
+{
+  "name": "hytale-doc-fetcher",
+  "version": "1.0.0",
+  "description": "Fetch Hytale documentation for AI agents (bypasses Cloudflare)",
+  "main": "fetch-docs.js",
+  "scripts": {
+    "fetch": "node fetch-docs.js"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "puppeteer": "^24.35.0"
+  }
+}
