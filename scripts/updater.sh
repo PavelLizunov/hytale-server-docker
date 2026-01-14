@@ -65,8 +65,13 @@ extract_game() {
 
     mkdir -p "$TMP_DIR/extract"
 
-    # Extract with progress
-    unzip -o "$TMP_DIR/game.zip" -d "$TMP_DIR/extract"
+    # Extract with low I/O priority to prevent system overload
+    # ionice -c3 = idle priority (only when disk is idle)
+    if command -v ionice &> /dev/null; then
+        ionice -c3 unzip -o "$TMP_DIR/game.zip" -d "$TMP_DIR/extract"
+    else
+        unzip -o "$TMP_DIR/game.zip" -d "$TMP_DIR/extract"
+    fi
 
     # Remove zip immediately to free space
     rm -f "$TMP_DIR/game.zip"

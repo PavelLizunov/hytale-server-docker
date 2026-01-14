@@ -3,7 +3,7 @@ FROM eclipse-temurin:25-jre
 ARG TARGETARCH
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates bash unzip coreutils findutils curl jq \
+    ca-certificates bash unzip coreutils findutils curl jq util-linux \
  && rm -rf /var/lib/apt/lists/*
 
 # Download hytale-downloader
