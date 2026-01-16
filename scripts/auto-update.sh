@@ -27,6 +27,26 @@ log_error() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] ERROR: $1" | tee -a "$LOG_FILE" >&2
 }
 
+validate_environment() {
+    # Check required directories exist
+    if [[ ! -d "$DATA_DIR" ]]; then
+        log_error "Data directory not found: $DATA_DIR"
+        exit 1
+    fi
+
+    if [[ ! -d "$DOCKER_DIR" ]]; then
+        log_error "Docker project directory not found: $DOCKER_DIR"
+        exit 1
+    fi
+
+    if [[ ! -f "$DOCKER_DIR/docker-compose.yml" ]]; then
+        log_error "docker-compose.yml not found in: $DOCKER_DIR"
+        exit 1
+    fi
+
+    log "Environment validated"
+}
+
 check_version() {
     log "Checking for updates..."
 
@@ -107,6 +127,11 @@ main() {
     log "=========================================="
     log "Hytale Auto-Update Script"
     log "=========================================="
+    log "Data dir: $DATA_DIR"
+    log "Docker dir: $DOCKER_DIR"
+
+    # Validate environment
+    validate_environment
 
     # Check if update is available
     if ! check_version; then

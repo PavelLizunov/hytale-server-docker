@@ -112,6 +112,21 @@ GameTime сбрасывается после запуска `docker compose run 
 
 ---
 
+### 5. Player Deaths Not Logged / Смерти игроков не логируются
+**Status:** Confirmed limitation
+**Severity:** Low (documentation issue)
+**Date:** 2026-01-15
+
+**Description:**
+Player death events are not recorded in server logs, making it difficult to debug death-related issues.
+
+---
+
+**Описание:**
+События смерти игроков не записываются в логи сервера, что затрудняет отладку связанных проблем.
+
+---
+
 ## Resolved Issues / Решённые проблемы
 
 *(none yet)*
