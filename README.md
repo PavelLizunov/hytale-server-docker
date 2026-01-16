@@ -89,6 +89,30 @@ crontab -e
 0 3 */25 * * docker exec hytale /scripts/auth-refresh.sh >> /var/log/hytale-auth.log 2>&1
 ```
 
+### 8. Setup auto-update (optional) / Настройка автообновления (опционально)
+
+Automatically update the server daily. Checks for new version before updating.
+
+Автоматическое ежедневное обновление сервера. Проверяет наличие новой версии перед обновлением.
+
+```bash
+chmod +x scripts/auto-update.sh
+
+crontab -e
+
+# Add this line (runs every day at 4 AM)
+# Добавьте эту строку (запуск каждый день в 4 утра)
+0 4 * * * HYTALE_DATA_DIR=/opt/hytale-data HYTALE_DOCKER_DIR=$HOME/hytale-server-docker $HOME/hytale-server-docker/scripts/auto-update.sh >> /var/log/hytale-auto-update.log 2>&1
+```
+
+View auto-update logs / Просмотр логов автообновления:
+
+```bash
+tail -f /var/log/hytale-auto-update.log
+# or / или
+tail -f /opt/hytale-data/logs/auto-update.log
+```
+
 ## Commands / Команды
 
 ```bash
