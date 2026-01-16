@@ -39,7 +39,7 @@ check_version() {
 
     # Check available version using hytale-downloader
     cd "$DOCKER_DIR"
-    AVAILABLE_VERSION=$(docker compose run --rm updater hytale-downloader -print-version -patchline "$PATCHLINE" 2>/dev/null | grep -oP '\d{4}\.\d{2}\.\d{2}[^ ]*' | head -1 || echo "")
+    AVAILABLE_VERSION=$(docker compose run --rm updater hytale-downloader -print-version -patchline "$PATCHLINE" 2>/dev/null | grep -oP '\d{4}\.\d{2}\.\d{2}-[a-f0-9]+' | head -1 || echo "")
 
     if [[ -z "$AVAILABLE_VERSION" ]]; then
         log_error "Could not determine available version"
@@ -83,12 +83,20 @@ start_server() {
     log "Starting server..."
     cd "$DOCKER_DIR"
     docker compose up -d
-    sleep 10
+    sleep 15
 
-    # Check if server started
-    if docker compose ps | grep -q "running"; then
-        log "Server started successfully"
-        return 0
+    # Check if server started (multiple methods)
+    if docker ps --filter "name=hytale" --format "{{.Status}}" | grep -qi "up"; then
+        log "Server container is running"
+
+        # Check if server actually booted
+        if docker logs hytale 2>&1 | grep -q "Hytale Server Booted"; then
+            log "Server started successfully"
+            return 0
+        else
+            log "Server container running but still booting..."
+            return 0
+        fi
     else
         log_error "Server failed to start"
         return 1
